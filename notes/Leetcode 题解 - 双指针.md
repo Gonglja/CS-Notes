@@ -1,23 +1,19 @@
-# Leetcode 题解 - 双指针
 <!-- GFM-TOC -->
-* [Leetcode 题解 - 双指针](#leetcode-题解---双指针)
-    * [1. 有序数组的 Two Sum](#1-有序数组的-two-sum)
-    * [2. 两数平方和](#2-两数平方和)
-    * [3. 反转字符串中的元音字符](#3-反转字符串中的元音字符)
-    * [4. 回文字符串](#4-回文字符串)
-    * [5. 归并两个有序数组](#5-归并两个有序数组)
-    * [6. 判断链表是否存在环](#6-判断链表是否存在环)
-    * [7. 最长子序列](#7-最长子序列)
+* [1. 有序数组的 Two Sum](#1-有序数组的-two-sum)
+* [2. 两数平方和](#2-两数平方和)
+* [3. 反转字符串中的元音字符](#3-反转字符串中的元音字符)
+* [4. 回文字符串](#4-回文字符串)
+* [5. 归并两个有序数组](#5-归并两个有序数组)
+* [6. 判断链表是否存在环](#6-判断链表是否存在环)
+* [7. 最长子序列](#7-最长子序列)
 <!-- GFM-TOC -->
 
 
 双指针主要用于遍历数组，两个指针指向不同的元素，从而协同完成任务。
 
-## 1. 有序数组的 Two Sum
+# 1. 有序数组的 Two Sum
 
-167\. Two Sum II - Input array is sorted (Easy)
-
-[Leetcode](https://leetcode.com/problems/two-sum-ii-input-array-is-sorted/description/) / [力扣](https://leetcode-cn.com/problems/two-sum-ii-input-array-is-sorted/description/)
+[Leetcode ：167. Two Sum II - Input array is sorted (Easy)](https://leetcode-cn.com/problems/two-sum-ii-input-array-is-sorted/description/)
 
 ```html
 Input: numbers={2, 7, 11, 15}, target=9
@@ -29,36 +25,51 @@ Output: index1=1, index2=2
 使用双指针，一个指针指向值较小的元素，一个指针指向值较大的元素。指向较小元素的指针从头向尾遍历，指向较大元素的指针从尾向头遍历。
 
 - 如果两个指针指向元素的和 sum == target，那么得到要求的结果；
-- 如果 sum \> target，移动较大的元素，使 sum 变小一些；
-- 如果 sum \< target，移动较小的元素，使 sum 变大一些。
+- 如果 sum > target，移动较大的元素，使 sum 变小一些；
+- 如果 sum < target，移动较小的元素，使 sum 变大一些。
 
-数组中的元素最多遍历一次，时间复杂度为 O(N)。只使用了两个额外变量，空间复杂度为  O(1)。
-
-<div align="center"> <img src="https://cs-notes-1256109796.cos.ap-guangzhou.myqcloud.com/437cb54c-5970-4ba9-b2ef-2541f7d6c81e.gif" width="200px"> </div><br>
-
-```java
-public int[] twoSum(int[] numbers, int target) {
-    if (numbers == null) return null;
-    int i = 0, j = numbers.length - 1;
-    while (i < j) {
-        int sum = numbers[i] + numbers[j];
-        if (sum == target) {
-            return new int[]{i + 1, j + 1};
-        } else if (sum < target) {
-            i++;
-        } else {
-            j--;
+```c++
+// 方法1 
+// 左右两指针，如左指针数据 + 右指针数据 小于 目标值，则右移左指针
+// 如 左指针数据 + 右指针数据 大于 目标值，则左移右指针，直接与目标值相等，返回两个元素索引（+1）
+class Solution {
+public:
+    vector<int> twoSum(vector<int>& numbers, int target) {
+        int left = 0;
+        int right = numbers.size() -1;
+        while(left<=right){
+            if(numbers[left] == target -numbers[right]){
+                return {left + 1, right + 1};
+            }else if(numbers[left] < target - numbers[right]){
+                ++left;
+            }else if(numbers[left] > target - numbers[right]){
+                --right;
+            }
         }
+        return {};
     }
-    return null;
-}
+};
+
+// 方法2
+// 使用unordered_map，在该示例中key为number，value为index,
+// 遍历整个数组，将索引存至map中，同时在map中查找是否含有 符合条件的数据（=target - numbers[i]）,如果有返回索引 
+class Solution {
+public:
+    vector<int> twoSum(vector<int>& numbers, int target) {
+       unordered_map<int, int> indies;
+       for(int i=0;i<numbers.size();i++){
+           if(indies.count(target - numbers[i]))
+                return {indies[target - numbers[i]]+1,i+1};
+            indies[numbers[i]] = i;
+       }
+       return {};
+    }
+};
 ```
 
-## 2. 两数平方和
+# 2. 两数平方和
 
-633\. Sum of Square Numbers (Easy)
-
-[Leetcode](https://leetcode.com/problems/sum-of-square-numbers/description/) / [力扣](https://leetcode-cn.com/problems/sum-of-square-numbers/description/)
+[633. Sum of Square Numbers (Easy)](https://leetcode-cn.com/problems/sum-of-square-numbers/description/)
 
 ```html
 Input: 5
@@ -66,84 +77,81 @@ Output: True
 Explanation: 1 * 1 + 2 * 2 = 5
 ```
 
-题目描述：判断一个非负整数是否为两个整数的平方和。
+题目描述：判断一个数是否为两个数的平方和。
 
-可以看成是在元素为 0\~target 的有序数组中查找两个数，使得这两个数的平方和为 target，如果能找到，则返回 true，表示 target 是两个整数的平方和。
-
-本题和 167\. Two Sum II - Input array is sorted 类似，只有一个明显区别：一个是和为 target，一个是平方和为 target。本题同样可以使用双指针得到两个数，使其平方和为 target。
-
-本题的关键是右指针的初始化，实现剪枝，从而降低时间复杂度。设右指针为 x，左指针固定为 0，为了使 0<sup>2</sup> + x<sup>2</sup> 的值尽可能接近 target，我们可以将 x 取为 sqrt(target)。
-
-因为最多只需要遍历一次 0\~sqrt(target)，所以时间复杂度为 O(sqrt(target))。又因为只使用了两个额外的变量，因此空间复杂度为 O(1)。
-
-```java
- public boolean judgeSquareSum(int target) {
-     if (target < 0) return false;
-     int i = 0, j = (int) Math.sqrt(target);
-     while (i <= j) {
-         int powSum = i * i + j * j;
-         if (powSum == target) {
-             return true;
-         } else if (powSum > target) {
-             j--;
-         } else {
-             i++;
-         }
-     }
-     return false;
- }
+```c++
+class Solution {
+public:
+    bool judgeSquareSum(int c) {
+        unsigned int left = 0;
+        unsigned int right = sqrt(c);
+        while(left<=right){
+            if(left * left + right * right == c){
+                return true;
+            } else if(left * left + right * right < c ){
+                ++left;
+            } else if(left * left + right * right > c){
+                --right;
+            }
+        }
+        return false;
+    }
+};
 ```
 
-## 3. 反转字符串中的元音字符
+# 3. 反转字符串中的元音字符
 
-345\. Reverse Vowels of a String (Easy)
-
-[Leetcode](https://leetcode.com/problems/reverse-vowels-of-a-string/description/) / [力扣](https://leetcode-cn.com/problems/reverse-vowels-of-a-string/description/)
+[345. Reverse Vowels of a String (Easy)](https://leetcode-cn.com/problems/reverse-vowels-of-a-string/description/)
 
 ```html
 Given s = "leetcode", return "leotcede".
 ```
 
-<div align="center"> <img src="https://cs-notes-1256109796.cos.ap-guangzhou.myqcloud.com/a7cb8423-895d-4975-8ef8-662a0029c772.png" width="400px"> </div><br>
+使用双指针指向待反转的两个元音字符，一个指针从头向尾遍历，一个指针从尾到头遍历。
 
-使用双指针，一个指针从头向尾遍历，一个指针从尾到头遍历，当两个指针都遍历到元音字符时，交换这两个元音字符。
-
-为了快速判断一个字符是不是元音字符，我们将全部元音字符添加到集合 HashSet 中，从而以 O(1) 的时间复杂度进行该操作。
-
-- 时间复杂度为 O(N)：只需要遍历所有元素一次
-- 空间复杂度 O(1)：只需要使用两个额外变量
-
-<div align="center"> <img src="https://cs-notes-1256109796.cos.ap-guangzhou.myqcloud.com/ef25ff7c-0f63-420d-8b30-eafbeea35d11.gif" width="400px"> </div><br>
-
-```java
-private final static HashSet<Character> vowels = new HashSet<>(
-        Arrays.asList('a', 'e', 'i', 'o', 'u', 'A', 'E', 'I', 'O', 'U'));
-
-public String reverseVowels(String s) {
-    if (s == null) return null;
-    int i = 0, j = s.length() - 1;
-    char[] result = new char[s.length()];
-    while (i <= j) {
-        char ci = s.charAt(i);
-        char cj = s.charAt(j);
-        if (!vowels.contains(ci)) {
-            result[i++] = ci;
-        } else if (!vowels.contains(cj)) {
-            result[j--] = cj;
-        } else {
-            result[i++] = cj;
-            result[j--] = ci;
+```c++
+class Solution {
+public:
+    bool isVowel(char ch){
+        switch(ch){
+            case 'a':
+            case 'e':
+            case 'i':
+            case 'o':
+            case 'u':
+            case 'A':
+            case 'E':
+            case 'I':
+            case 'O':
+            case 'U':
+                return true;
+            default:
+                return false;
         }
+        return false;
     }
-    return new String(result);
-}
+    string reverseVowels(string s) {
+        int left = 0;
+        int right = s.length() - 1;
+        while(left <= right){
+            if(isVowel(s[left]) && isVowel(s[right])){
+                swap(s[left],s[right]);
+                ++left;
+                --right;
+            }else if(!isVowel(s[left])){
+                ++left;
+            }else if(!isVowel(s[right])){
+                --right;
+            }
+        }
+        return s;
+    }
+};
 ```
 
-## 4. 回文字符串
+# 4. 回文字符串
 
-680\. Valid Palindrome II (Easy)
-
-[Leetcode](https://leetcode.com/problems/valid-palindrome-ii/description/) / [力扣](https://leetcode-cn.com/problems/valid-palindrome-ii/description/)
+[680. Valid Palindrome II (Easy)](https://leetcode-cn.com/problems/valid-palindrome-ii/description/)
 
 ```html
 Input: "abca"
@@ -153,45 +161,43 @@ Explanation: You could delete the character 'c'.
 
 题目描述：可以删除一个字符，判断是否能构成回文字符串。
 
-所谓的回文字符串，是指具有左右对称特点的字符串，例如 "abcba" 就是一个回文字符串。
+```c++
 
-使用双指针可以很容易判断一个字符串是否是回文字符串：令一个指针从左到右遍历，一个指针从右到左遍历，这两个指针同时移动一个位置，每次都判断两个指针指向的字符是否相同，如果都相同，字符串才是具有左右对称性质的回文字符串。
-
-<div align="center"> <img src="https://cs-notes-1256109796.cos.ap-guangzhou.myqcloud.com/fcc941ec-134b-4dcd-bc86-1702fd305300.gif" width="250px"> </div><br>
-
-本题的关键是处理删除一个字符。在使用双指针遍历字符串时，如果出现两个指针指向的字符不相等的情况，我们就试着删除一个字符，再判断删除完之后的字符串是否是回文字符串。
-
-在判断是否为回文字符串时，我们不需要判断整个字符串，因为左指针左边和右指针右边的字符之前已经判断过具有对称性质，所以只需要判断中间的子字符串即可。
-
-在试着删除字符时，我们既可以删除左指针指向的字符，也可以删除右指针指向的字符。
-
-<div align="center"> <img src="https://cs-notes-1256109796.cos.ap-guangzhou.myqcloud.com/db5f30a7-8bfa-4ecc-ab5d-747c77818964.gif" width="300px"> </div><br>
-
-```java
-public boolean validPalindrome(String s) {
-    for (int i = 0, j = s.length() - 1; i < j; i++, j--) {
-        if (s.charAt(i) != s.charAt(j)) {
-            return isPalindrome(s, i, j - 1) || isPalindrome(s, i + 1, j);
+class Solution {
+public:
+    bool isPalidrome(string &s,int left,int right){
+        while(left <= right){
+            if(s[left]!=s[right]){
+                return false;
+            }
+            ++left;
+            --right;
         }
+        return true;
     }
-    return true;
-}
+    bool validPalindrome(string s) {
+        int left =0;
+        int right = s.length() -1;
 
-private boolean isPalindrome(String s, int i, int j) {
-    while (i < j) {
-        if (s.charAt(i++) != s.charAt(j--)) {
-            return false;
+        while(left <= right){
+            if(s[left]!=s[right]){
+                if(!isPalidrome(s,left+1,right) &&  !isPalidrome(s,left,right-1)){
+                    return false;
+                }else{
+                    return true;
+                }
+            }
+            ++left;
+            --right;
         }
+        return true;
     }
-    return true;
-}
+};
 ```
 
-## 5. 归并两个有序数组
+# 5. 归并两个有序数组
 
-88\. Merge Sorted Array (Easy)
-
-[Leetcode](https://leetcode.com/problems/merge-sorted-array/description/) / [力扣](https://leetcode-cn.com/problems/merge-sorted-array/description/)
+[88. Merge Sorted Array (Easy)](https://leetcode-cn.com/problems/merge-sorted-array/description/)
 
 ```html
 Input:
@@ -205,54 +211,66 @@ Output: [1,2,2,3,5,6]
 
 需要从尾开始遍历，否则在 nums1 上归并得到的值会覆盖还未进行归并比较的值。
 
-```java
-public void merge(int[] nums1, int m, int[] nums2, int n) {
-    int index1 = m - 1, index2 = n - 1;
-    int indexMerge = m + n - 1;
-    while (index1 >= 0 || index2 >= 0) {
-        if (index1 < 0) {
-            nums1[indexMerge--] = nums2[index2--];
-        } else if (index2 < 0) {
-            nums1[indexMerge--] = nums1[index1--];
-        } else if (nums1[index1] > nums2[index2]) {
-            nums1[indexMerge--] = nums1[index1--];
-        } else {
-            nums1[indexMerge--] = nums2[index2--];
+```c++
+//需考虑异常情况nums1为空时的情况
+class Solution {
+public:
+    void swap(int &m,int &n){
+        int t = m;
+        n = m;
+        m = t;
+    }
+    void merge(vector<int>& nums1, int m, vector<int>& nums2, int n) {
+        int s1 = m -1;
+        int s2 = n -1;
+        int s1_max = m + n -1;
+        while(s1 > -1 && s2 > -1){ // 当nums1不为空时，m > 0
+            if(nums2[s2] >= nums1[s1]){
+                swap(nums2[s2],nums1[s1_max]);
+                --s2;
+            }else if(nums2[s2] < nums1[s1]){
+                swap(nums1[s1],nums1[s1_max]);
+                --s1;
+            }
+            --s1_max;
+        }
+        while(s1 == -1 && s2 > -1){ //当nums1为空时，m=0 
+            nums1[s1_max--] = nums2[s2--];
         }
     }
-}
+};
 ```
 
-## 6. 判断链表是否存在环
+# 6. 判断链表是否存在环
 
-141\. Linked List Cycle (Easy)
-
-[Leetcode](https://leetcode.com/problems/linked-list-cycle/description/) / [力扣](https://leetcode-cn.com/problems/linked-list-cycle/description/)
+[141. Linked List Cycle (Easy)](https://leetcode-cn.com/problems/linked-list-cycle/description/)
 
 使用双指针，一个指针每次移动一个节点，一个指针每次移动两个节点，如果存在环，那么这两个指针一定会相遇。
 
-```java
-public boolean hasCycle(ListNode head) {
-    if (head == null) {
+```c++
+//一个指针移动一个节点，一个指针移动两个节点,如果存在环，两指针定会相遇
+// 需考虑 head指针是否为空，需考虑指针是否越界（指针移动两个节点时）
+class Solution {
+public:
+    bool hasCycle(ListNode *head) {
+        if(!head)return false;
+        ListNode *l1 = head;
+        ListNode *l2 = head->next;
+        while(l1 && l2 && l2->next){
+            if(l1 == l2){
+                return true;
+            }
+            l1 = l1->next;
+            l2 = l2->next->next;
+        }
         return false;
     }
-    ListNode l1 = head, l2 = head.next;
-    while (l1 != null && l2 != null && l2.next != null) {
-        if (l1 == l2) {
-            return true;
-        }
-        l1 = l1.next;
-        l2 = l2.next.next;
-    }
-    return false;
-}
+};
 ```
 
-## 7. 最长子序列
+# 7. 最长子序列
 
-524\. Longest Word in Dictionary through Deleting (Medium)
-
-[Leetcode](https://leetcode.com/problems/longest-word-in-dictionary-through-deleting/description/) / [力扣](https://leetcode-cn.com/problems/longest-word-in-dictionary-through-deleting/description/)
+[524. Longest Word in Dictionary through Deleting (Medium)](https://leetcode-cn.com/problems/longest-word-in-dictionary-through-deleting/description/)
 
 ```
 Input:
@@ -266,29 +284,43 @@ Output:
 
 通过删除字符串 s 中的一个字符能得到字符串 t，可以认为 t 是 s 的子序列，我们可以使用双指针来判断一个字符串是否为另一个字符串的子序列。
 
-```java
-public String findLongestWord(String s, List<String> d) {
-    String longestWord = "";
-    for (String target : d) {
-        int l1 = longestWord.length(), l2 = target.length();
-        if (l1 > l2 || (l1 == l2 && longestWord.compareTo(target) < 0)) {
-            continue;
-        }
-        if (isSubstr(s, target)) {
-            longestWord = target;
-        }
+```c++
+class Solution {
+public:
+    //s1是s2的子串，返回 true
+    bool isSubstring(string s1,string s2){
+        int ps1 = 0;
+        int ps2 = 0;
+        while(ps1 < s1.length() && ps2 < s2.length()){
+            if(s1[ps1] == s2[ps2])
+                ++ps1;
+            ++ps2;
+        }        
+        return ps1 == s1.length();
     }
-    return longestWord;
-}
-
-private boolean isSubstr(String s, String target) {
-    int i = 0, j = 0;
-    while (i < s.length() && j < target.length()) {
-        if (s.charAt(i) == target.charAt(j)) {
-            j++;
+    string findLongestWord(string s, vector<string>& d) {
+        string longestWord = "";
+        for(const string target : d){
+            int l1 = longestWord.length();
+            int l2 = target.length();
+            if(l1>l2 || (l1 == l2 && longestWord.compare(target)< 0))// 第一个判断找到最长的子串，第二个判断找出字典序最小的子串 
+                continue;
+            if(isSubstring(target,s)){
+                longestWord = target;
+            }
         }
-        i++;
+        return longestWord;
     }
-    return j == target.length();
-}
+};
 ```
+
+
+
+
+# 微信公众号
+
+
+更多精彩内容将发布在微信公众号 CyC2018 上，你也可以在公众号后台和我交流学习和求职相关的问题。另外，公众号提供了该项目的 PDF 等离线阅读版本，后台回复 "下载" 即可领取。公众号也提供了一份技术面试复习大纲，不仅系统整理了面试知识点，而且标注了各个知识点的重要程度，从而帮你理清多而杂的面试知识点，后台回复 "大纲" 即可领取。我基本是按照这个大纲来进行复习的，对我拿到了 BAT 头条等 Offer 起到很大的帮助。你们完全可以和我一样根据大纲上列的知识点来进行复习，就不用看很多不重要的内容，也可以知道哪些内容很重要从而多安排一些复习时间。
+
+
+<br><div align="center"><img width="320px" src="https://cs-notes-1256109796.cos.ap-guangzhou.myqcloud.com/other/公众号海报.png"></img></div>
