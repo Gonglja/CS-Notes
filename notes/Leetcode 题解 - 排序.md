@@ -43,65 +43,66 @@ Output: 5
 
 **排序**  ：时间复杂度 O(NlogN)，空间复杂度 O(1)
 
-```java
-public int findKthLargest(int[] nums, int k) {
-    Arrays.sort(nums);
-    return nums[nums.length - k];
-}
+```c++
+class Solution {
+public:
+    int findKthLargest(vector<int>& nums, int k) {
+        std::sort(nums.begin(),nums.end());
+        return nums[nums.size() - k];
+    }
+};
 ```
 
 **堆**  ：时间复杂度 O(NlogK)，空间复杂度 O(K)。
 
-```java
-public int findKthLargest(int[] nums, int k) {
-    PriorityQueue<Integer> pq = new PriorityQueue<>(); // 小顶堆
-    for (int val : nums) {
-        pq.add(val);
-        if (pq.size() > k)  // 维护堆的大小为 K
-            pq.poll();
+```c++
+class Solution {
+public:
+    int findKthLargest(vector<int>& nums, int k) {
+        priority_queue<int, vector<int>, greater<int>> q;//小顶堆
+        for(const int num :nums){
+            q.push(num);
+            if(q.size() > k) //维护堆大小 为k
+                q.pop();
+        }
+        return q.top();
     }
-    return pq.peek();
-}
+};
 ```
 
-**快速选择**  ：时间复杂度 O(N)，空间复杂度 O(1)
+**快速选择**  ：时间复杂度 ？，空间复杂度？
 
 ```java
-public int findKthLargest(int[] nums, int k) {
-    k = nums.length - k;
-    int l = 0, h = nums.length - 1;
-    while (l < h) {
-        int j = partition(nums, l, h);
-        if (j == k) {
-            break;
-        } else if (j < k) {
-            l = j + 1;
-        } else {
-            h = j - 1;
-        }
+class Solution {
+public:
+    void swap(int &i1,int &i2){
+        int temp = i1;
+        i1 = i2;
+        i2 = temp;
     }
-    return nums[k];
-}
-
-private int partition(int[] a, int l, int h) {
-    int i = l, j = h + 1;
-    while (true) {
-        while (a[++i] < a[l] && i < h) ;
-        while (a[--j] > a[l] && j > l) ;
-        if (i >= j) {
-            break;
-        }
-        swap(a, i, j);
+    void quickSort(std::vector<int > &nums,int left,int right){
+        int i,j,t,tmp;
+        if(left > right)return ;
+        tmp = nums[left];//赋初值 
+        i = left;
+        j = right;
+        while(i!=j){
+            while(nums[j] >= tmp && i<j)--j;
+            while(nums[i] <= tmp && i<j)++i;
+            if(i<j){
+                swap(nums[i],nums[j]);
+            }
+        } 
+        swap(nums[left],nums[i]);
+        quickSort(nums,left,i-1);
+        quickSort(nums,i+1,right);	
     }
-    swap(a, l, j);
-    return j;
-}
 
-private void swap(int[] a, int i, int j) {
-    int t = a[i];
-    a[i] = a[j];
-    a[j] = t;
-}
+    int findKthLargest(vector<int>& nums, int k) {
+        quickSort(nums,0,nums.size()-1);
+        return nums[nums.size() - k];
+    }
+};
 ```
 
 ## 桶排序
