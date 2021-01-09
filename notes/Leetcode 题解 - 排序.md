@@ -223,23 +223,68 @@ Output: [0,0,1,1,2,2]
 
 题目描述：只有 0/1/2 三种颜色。
 
-```java
-public void sortColors(int[] nums) {
-    int zero = -1, one = 0, two = nums.length;
-    while (one < two) {
-        if (nums[one] == 0) {
-            swap(nums, ++zero, one++);
-        } else if (nums[one] == 2) {
-            swap(nums, --two, one);
-        } else {
-            ++one;
-        }
+```c++
+class Solution {
+public:
+    void swap(int &i1,int &i2){
+        int temp = i1;
+        i1 = i2;
+        i2 = temp;
     }
-}
+    void sortColors(vector<int>& nums) {
+        //方法1
+        /*
+        sort(nums.begin(),nums.end());
+        */
+        //进阶-方法2 单指针 
+        /*
+        int p = 0;
+        for(int i=0;i<nums.size();i++){
+            if(nums[i] == 0){
+                swap(nums[p],nums[i]);
+                p++;
+            }
+        }
+        for(int i=p;i<nums.size();i++){
+            if(nums[i] == 1){
+                swap(nums[p],nums[i]);
+                p++;
+            }
+        }*/
+        //进阶-方法3 双指针
+        /*
+        int p0=0,p1=0;
+        for(int i=0;i<nums.size();i++){
+            if(nums[i] == 1){
+                swap(nums[p1],nums[i]);
+                ++p1;
+            }
+            else if(nums[i] == 0){
+                swap(nums[p0],nums[i]);
+                if(p0 < p1)
+                    swap(nums[p1],nums[i]);
+                ++p0;
+                ++p1;
+            }
+        }*/
+        //方法3 双指针
+        int l=0,mid=0,r=nums.size()-1;
+        while(mid<=r){ 
+            if(nums[mid] == 0){
+                swap(nums[l],nums[mid]);
+                l++;
+                mid++;
+            }
+            else if(nums[mid] == 1){
+                mid++;
+            }
+            else if(nums[mid] == 2)
+            {
+                swap(nums[mid],nums[r]);
+                r--;
+            }
+        }
 
-private void swap(int[] nums, int i, int j) {
-    int t = nums[i];
-    nums[i] = nums[j];
-    nums[j] = t;
-}
+    }
+};
 ```

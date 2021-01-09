@@ -39,20 +39,23 @@ Output: 2
 
 <div align="center"> <img src="https://cs-notes-1256109796.cos.ap-guangzhou.myqcloud.com/e69537d2-a016-4676-b169-9ea17eeb9037.gif" width="430px"> </div><br>
 
-```java
-public int findContentChildren(int[] grid, int[] size) {
-    if (grid == null || size == null) return 0;
-    Arrays.sort(grid);
-    Arrays.sort(size);
-    int gi = 0, si = 0;
-    while (gi < grid.length && si < size.length) {
-        if (grid[gi] <= size[si]) {
-            gi++;
+```c++
+class Solution {
+public:
+    int findContentChildren(vector<int>& g, vector<int>& s) {
+        if(!g.size() ||!s.size()) return 0;
+        sort(g.begin(),g.end());
+        sort(s.begin(),s.end());
+        int i = 0;//孩子索引
+        int j = 0;//饼干索引
+        while(i<g.size()&&j<s.size()){//防止下标访问越界
+            if(g[i]<=s[j])//如果能，满足 孩子胃口，孩子+1， 饼干 不管满足不满足孩子胃口，每次+1，直到饼干遍历结束。
+                i++;
+            j++;
         }
-        si++;
+        return i;
     }
-    return gi;
-}
+};
 ```
 
 ## 2. 不重叠的区间个数
@@ -85,23 +88,28 @@ Explanation: You don't need to remove any of the intervals since they're already
 
 按区间的结尾进行排序，每次选择结尾最小，并且和前一个区间不重叠的区间。
 
-```java
-public int eraseOverlapIntervals(int[][] intervals) {
-    if (intervals.length == 0) {
-        return 0;
+```c++
+class Solution {
+public:
+    //构建 sort排序规则，按照vector中第二个元素从小到大 排序
+    static bool cmp(vector<int> &v1,vector<int> &v2){
+        return v1[1]<v2[1];
     }
-    Arrays.sort(intervals, Comparator.comparingInt(o -> o[1]));
-    int cnt = 1;
-    int end = intervals[0][1];
-    for (int i = 1; i < intervals.length; i++) {
-        if (intervals[i][0] < end) {
-            continue;
+    int eraseOverlapIntervals(vector<vector<int>>& intervals) {
+        if(!intervals.size())return 0;
+        sort(intervals.begin(),intervals.end(),cmp);//1.首先按照队尾从小到大排序
+        int cnt =1;
+        int end = intervals[0][1];                  //2.获取第一个向量队尾的值
+        for(int i=0;i<intervals.size();++i){        //3.遍历外层向量，如果有向量中第一个元素 小于第一个向量队尾，则该元素为去掉的重叠空间
+            if(intervals[i][0]<end){
+                continue;
+            }
+            end = intervals[i][1];                  //4.否则更新队尾的值，直到循环结束。
+            cnt++;                                  //5.记录不重叠空间个数，总数-不重叠 = 重叠的
         }
-        end = intervals[i][1];
-        cnt++;
+        return intervals.size() -cnt;
     }
-    return intervals.length - cnt;
-}
+};
 ```
 
 使用 lambda 表示式创建 Comparator 会导致算法运行时间过长，如果注重运行时间，可以修改为普通创建 Comparator 语句：
