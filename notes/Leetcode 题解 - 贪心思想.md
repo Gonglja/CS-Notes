@@ -143,22 +143,27 @@ Output:
 
 也是计算不重叠的区间个数，不过和 Non-overlapping Intervals 的区别在于，[1, 2] 和 [2, 3] 在本题中算是重叠区间。
 
-```java
-public int findMinArrowShots(int[][] points) {
-    if (points.length == 0) {
-        return 0;
+```c++
+class Solution {
+public:
+    static bool cmp(vector<int> &a,vector<int> &b){
+        return a[1] < b[1];
     }
-    Arrays.sort(points, Comparator.comparingInt(o -> o[1]));
-    int cnt = 1, end = points[0][1];
-    for (int i = 1; i < points.length; i++) {
-        if (points[i][0] <= end) {
-            continue;
+    int findMinArrowShots(vector<vector<int>>& points) {
+        if(!points.size())return 0;
+        sort(points.begin(),points.end(),cmp);//按指定条件排序，关键点1：按照vector中的第二个元素排序
+        int count = 1;
+        int end = points[0][1];
+        for(int i=1;i<points.size();++i){
+           if(points[i][0] <=end && points[i][1] >=end){//如果第二个气球的区间与第一个气球相交，跳过
+               continue;
+           }
+           end = points[i][1];
+           count ++;
         }
-        cnt++;
-        end = points[i][1];
+        return count;
     }
-    return cnt;
-}
+};
 ```
 
 ## 4. 根据身高和序号重组队列
@@ -181,18 +186,23 @@ Output:
 
 身高 h 降序、个数 k 值升序，然后将某个学生插入队列的第 k 个位置中。
 
-```java
-public int[][] reconstructQueue(int[][] people) {
-    if (people == null || people.length == 0 || people[0].length == 0) {
-        return new int[0][0];
+[图解](https://leetcode-cn.com/problems/queue-reconstruction-by-height/solution/xian-pai-xu-zai-cha-dui-dong-hua-yan-shi-suan-fa-g/)
+
+```c++
+class Solution {
+public:
+    static bool cmp(vector<int> &a,vector<int> &b){
+        return a[0] > b[0]||(a[0] == b[0] && a[1] < b[1]);
     }
-    Arrays.sort(people, (a, b) -> (a[0] == b[0] ? a[1] - b[1] : b[0] - a[0]));
-    List<int[]> queue = new ArrayList<>();
-    for (int[] p : people) {
-        queue.add(p[1], p);
+    vector<vector<int>> reconstructQueue(vector<vector<int>>& people) {
+        sort(people.begin(),people.end(),cmp);//先排序，排序方式：按身高从大到小，身高相同时，体重从小到大
+        vector<vector<int>> queue;
+        for(const vector<int>& p:people){
+            queue.insert(queue.begin() + p[1],p);//在插入
+        }
+        return queue;
     }
-    return queue.toArray(new int[queue.size()][]);
-}
+};
 ```
 
 ## 5. 买卖股票最大的收益
@@ -205,18 +215,23 @@ public int[][] reconstructQueue(int[][] people) {
 
 只要记录前面的最小价格，将这个最小价格作为买入价格，然后将当前的价格作为售出价格，查看当前收益是不是最大收益。
 
-```java
-public int maxProfit(int[] prices) {
-    int n = prices.length;
-    if (n == 0) return 0;
-    int soFarMin = prices[0];
-    int max = 0;
-    for (int i = 1; i < n; i++) {
-        if (soFarMin > prices[i]) soFarMin = prices[i];
-        else max = Math.max(max, prices[i] - soFarMin);
+```c++
+class Solution {
+public:
+    int maxProfit(vector<int>& prices) {
+        if(!prices.size()) return 0;
+        int minValue = prices[0];
+        int maxValue = 0;
+        for(int i=1;i<prices.size();i++){
+            if(prices[i] < minValue){
+                minValue = prices[i];
+            }else {
+                maxValue = (prices[i] - minValue) > maxValue ? (prices[i]-minValue) : maxValue;
+            }
+        }
+        return maxValue;
     }
-    return max;
-}
+};
 ```
 
 
@@ -230,18 +245,21 @@ public int maxProfit(int[] prices) {
 
 对于 [a, b, c, d]，如果有 a \<= b \<= c \<= d ，那么最大收益为 d - a。而 d - a = (d - c) + (c - b) + (b - a) ，因此当访问到一个 prices[i] 且 prices[i] - prices[i-1] \> 0，那么就把 prices[i] - prices[i-1] 添加到收益中。
 
-```java
-public int maxProfit(int[] prices) {
-    int profit = 0;
-    for (int i = 1; i < prices.length; i++) {
-        if (prices[i] > prices[i - 1]) {
-            profit += (prices[i] - prices[i - 1]);
+```c++
+class Solution {
+public:
+    int maxProfit(vector<int>& prices) {
+        if(!prices.size()) return 0;
+        int sum = 0;
+        for(int i = 1;i<prices.size();i++){
+            if(prices[i] - prices[i-1] > 0){//如果 a<=b<=c<=d,最大收益为d-a,d-a还等于(d-c)+(c-b)+(b-a)
+                sum += prices[i] - prices[i-1];
+            }         
         }
+        return sum;
     }
-    return profit;
-}
+};
 ```
-
 
 ## 7. 种植花朵
 
