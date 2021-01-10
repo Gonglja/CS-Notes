@@ -1,4 +1,5 @@
-# Leetcode 题解 - 贪心思想
+# 	Leetcode 题解 - 贪心思想
+
 <!-- GFM-TOC -->
 * [Leetcode 题解 - 贪心思想](#leetcode-题解---贪心思想)
     * [1. 分配饼干](#1-分配饼干)
@@ -213,7 +214,7 @@ public:
 
 题目描述：一次股票交易包含买入和卖出，只进行一次交易，求最大收益。
 
-只要记录前面的最小价格，将这个最小价格作为买入价格，然后将当前的价格作为售出价格，查看当前收益是不是最大收益。
+只要**记录前面的最小价格**，将这个最小价格作为买入价格，然后将**当前的价格作为售出价格**，查看当前收益是不是最大收益。
 
 ```c++
 class Solution {
@@ -274,23 +275,27 @@ Output: True
 
 题目描述：flowerbed 数组中 1 表示已经种下了花朵。花朵之间至少需要一个单位的间隔，求解是否能种下 n 朵花。
 
-```java
-public boolean canPlaceFlowers(int[] flowerbed, int n) {
-    int len = flowerbed.length;
-    int cnt = 0;
-    for (int i = 0; i < len && cnt < n; i++) {
-        if (flowerbed[i] == 1) {
-            continue;
+```c++
+class Solution {
+public:
+    bool canPlaceFlowers(vector<int>& flowerbed, int n) {
+        int size = flowerbed.size();
+        int cnt = 0;
+        for(int i = 0; i <size; ++i){
+            if(flowerbed[i]){
+                continue;
+            }
+            //精髓 使用两个?: 即不会越界，还考虑到边界情况
+            int pre = i==0 ? 0 :flowerbed[i- 1];
+            int next= i==size-1 ? 0 :flowerbed[i+1];
+            if(!pre && !next){
+                cnt ++;
+                flowerbed[i] = 1;
+            }
         }
-        int pre = i == 0 ? 0 : flowerbed[i - 1];
-        int next = i == len - 1 ? 0 : flowerbed[i + 1];
-        if (pre == 0 && next == 0) {
-            cnt++;
-            flowerbed[i] = 1;
-        }
+        return cnt >=n;
     }
-    return cnt >= n;
-}
+};
 ```
 
 ## 8. 判断是否为子序列
@@ -304,17 +309,22 @@ s = "abc", t = "ahbgdc"
 Return true.
 ```
 
-```java
-public boolean isSubsequence(String s, String t) {
-    int index = -1;
-    for (char c : s.toCharArray()) {
-        index = t.indexOf(c, index + 1);
-        if (index == -1) {
-            return false;
+```c++
+//定义两个数组指针，遍历t字符串，如果两指针字符相等，子串指针+1，原串指针+1，循环结束，返回子串指针是否等于子串长度，等于则为子序列。
+class Solution {
+public:
+    bool isSubsequence(string s, string t) {
+        int si = 0;
+        int ti = 0;
+        while(ti < t.length()){
+            if(s[si] == t[ti]){
+                si++;
+            }
+            ti++;
         }
+        return si == s.length() ;
     }
-    return true;
-}
+};
 ```
 
 ## 9. 修改一个数成为非递减数组
@@ -333,22 +343,47 @@ Explanation: You could modify the first 4 to 1 to get a non-decreasing array.
 
 在出现 nums[i] \< nums[i - 1] 时，需要考虑的是应该修改数组的哪个数，使得本次修改能使 i 之前的数组成为非递减数组，并且   **不影响后续的操作**  。优先考虑令 nums[i - 1] = nums[i]，因为如果修改 nums[i] = nums[i - 1] 的话，那么 nums[i] 这个数会变大，就有可能比 nums[i + 1] 大，从而影响了后续操作。还有一个比较特别的情况就是 nums[i] \< nums[i - 2]，修改 nums[i - 1] = nums[i] 不能使数组成为非递减数组，只能修改 nums[i] = nums[i - 1]。
 
-```java
-public boolean checkPossibility(int[] nums) {
-    int cnt = 0;
-    for (int i = 1; i < nums.length && cnt < 2; i++) {
-        if (nums[i] >= nums[i - 1]) {
-            continue;
+
+
+这道题给了我们一个数组，说我们最多有1次修改某个数字的机会，
+问能不能将数组变为非递减数组。题目中给的例子太少，不能覆盖所有情况，我们再来看下面三个例子：
+4，2，3
+-1，4，2，3
+2，3，3，2，4
+我们通过分析上面三个例子可以发现，当我们发现后面的数字小于前面的数字产生冲突后，
+[1]**有时候需要修改前面较大的数字**(比如前两个例子需要修改4)，
+[2]**有时候却要修改后面较小的那个数字**(比如前第三个例子需要修改2)，
+那么有什么内在规律吗？是有的，判断修改那个数字其实跟再前面一个数的大小有关系，
+
+- 首先如果再前面的数不存在，比如例子1，4前面没有数字了，我们直接修改前面的数字为当前的数字2即可。
+
+- 而当再前面的数字存在，并且小于当前数时，比如例子2，-1小于2，我们还是需要修改前面的数字4为当前数字2；
+
+- 如果再前面的数大于当前数，比如例子3，3大于2，我们需要修改当前数2为前面的数3。
+
+
+
+```c++
+class Solution {
+public:
+    bool checkPossibility(vector<int>& nums) {
+        int size = nums.size();
+        int cnt =0;
+        for(int i=1; i< size;i++){
+            if(nums[i]>=nums[i-1]){
+                continue;
+            }
+            cnt ++;
+            if(i-2 >= 0 && nums[i-2] > nums[i]){
+                nums[i] = nums[i -1];
+            }
+            else {
+                nums[i-1] = nums[i];
+            }
         }
-        cnt++;
-        if (i - 2 >= 0 && nums[i - 2] > nums[i]) {
-            nums[i] = nums[i - 1];
-        } else {
-            nums[i - 1] = nums[i];
-        }
+        return cnt <=1;
     }
-    return cnt <= 1;
-}
+};
 ```
 
 
@@ -365,18 +400,19 @@ the contiguous subarray [4,-1,2,1] has the largest sum = 6.
 ```
 
 ```java
-public int maxSubArray(int[] nums) {
-    if (nums == null || nums.length == 0) {
-        return 0;
+class Solution {
+public:
+    int maxSubArray(vector<int>& nums) {
+        int preSum = nums[0];
+        int maxSum = preSum;
+        for(int i=1; i<nums.size();i++){//注意循环的起点
+            preSum = preSum > 0 ? preSum +nums[i] : nums[i]; //如果上一次和为正，则加上当前值，不为正，当前值最大。
+            if(preSum > maxSum)
+                maxSum = preSum;
+        }
+        return maxSum;
     }
-    int preSum = nums[0];
-    int maxSum = preSum;
-    for (int i = 1; i < nums.length; i++) {
-        preSum = preSum > 0 ? preSum + nums[i] : nums[i];
-        maxSum = Math.max(maxSum, preSum);
-    }
-    return maxSum;
-}
+};
 ```
 
 ## 11. 分隔字符串使同种字符出现在一起
@@ -395,28 +431,24 @@ A partition like "ababcbacadefegde", "hijhklij" is incorrect, because it splits 
 ```
 
 ```java
-public List<Integer> partitionLabels(String S) {
-    int[] lastIndexsOfChar = new int[26];
-    for (int i = 0; i < S.length(); i++) {
-        lastIndexsOfChar[char2Index(S.charAt(i))] = i;
-    }
-    List<Integer> partitions = new ArrayList<>();
-    int firstIndex = 0;
-    while (firstIndex < S.length()) {
-        int lastIndex = firstIndex;
-        for (int i = firstIndex; i < S.length() && i <= lastIndex; i++) {
-            int index = lastIndexsOfChar[char2Index(S.charAt(i))];
-            if (index > lastIndex) {
-                lastIndex = index;
+//首先记录每个字符出现的最后位置，如果当前index等于当前元素的最大index，则push,下段起始位置为当前位置i+1
+class Solution {
+public:
+    vector<int> partitionLabels(string S) {
+        vector<int> result;
+        unordered_map<char,int> map;//记录出现的ch和最后出现的位置，也可以用数组arr[S[i] - 'a'] = i;
+        for(int i=0;i<S.size();i++){
+            map[S[i]] = i;
+        }
+        int start = 0,end = 0;
+        for(int i=0;i<S.size();i++){
+            end = end > map[S[i]] ? end : map[S[i]];//获取当前元素的最大索引
+            if(i == end){
+                result.push_back( end - start +1);//
+                start =i+1;
             }
         }
-        partitions.add(lastIndex - firstIndex + 1);
-        firstIndex = lastIndex + 1;
+        return result;
     }
-    return partitions;
-}
-
-private int char2Index(char c) {
-    return c - 'a';
-}
+};
 ```

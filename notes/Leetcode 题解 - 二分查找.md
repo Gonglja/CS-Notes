@@ -115,7 +115,7 @@ Explanation: The square root of 8 is 2.82842..., and since we want to return an 
 
 对于 x = 8，它的开方是 2.82842...，最后应该返回 2 而不是 3。在循环条件为 l \<= h 并且循环退出时，h 总是比 l 小 1，也就是说 h = 2，l = 3，因此最后的返回值应该为 h 而不是 l。
 
-```java
+```c++
 public int mySqrt(int x) {
     if (x <= 1) {
         return x;
@@ -134,6 +134,27 @@ public int mySqrt(int x) {
     }
     return h;
 }
+
+class Solution {
+public:
+    int mySqrt(int x) {
+        if(x<=1)return x;
+        int l = 0, h = x;
+        int ans = 0;
+        while(l<=h){
+            int m = l + (h - l)/2;
+            long temp = (long)m * m;
+            if(temp <= x){
+                ans = m;
+                l = m + 1;
+            }
+            else if(temp > x){
+                h = m - 1;
+            }
+        }
+        return h;
+    }
+};
 ```
 
 ## 2. 大于给定元素的最小元素
@@ -156,20 +177,23 @@ Output: "c"
 
 题目描述：给定一个有序的字符数组 letters 和一个字符 target，要求找出 letters 中大于 target 的最小字符，如果找不到就返回第 1 个字符。
 
-```java
-public char nextGreatestLetter(char[] letters, char target) {
-    int n = letters.length;
-    int l = 0, h = n - 1;
-    while (l <= h) {
-        int m = l + (h - l) / 2;
-        if (letters[m] <= target) {
-            l = m + 1;
-        } else {
-            h = m - 1;
+```c++
+class Solution {
+public:
+    char nextGreatestLetter(vector<char>& letters, char target) {
+        int n = letters.size();
+        int l = 0, h = n -1;
+        while(l <= h){
+            int m = l + (h -l)/2;
+            if(letters[m] <= target){
+                l = m + 1;
+            } else {
+                h = m - 1;
+            }
         }
+        return l < n ?letters[l]:letters[0];
     }
-    return l < n ? letters[l] : letters[0];
-}
+};
 ```
 
 ## 3. 有序数组的 Single Element
